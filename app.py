@@ -54,6 +54,10 @@ def compute_egarch(returns):
     except:
         return pd.Series([0]*len(returns))
 
+if data is None or data.empty:
+    st.error("No data fetched")
+    st.stop()
+
 returns = data['Close'].pct_change().dropna()
 
 garch_vol = compute_garch(returns)
@@ -78,7 +82,11 @@ sens_df = sensitivity_analysis(returns)
 def load_model():
     return pipeline("sentiment-analysis", model="ProsusAI/finbert")
 
-model = load_model()
+try:
+    model = load_model()
+except:
+    st.warning("Sentiment model failed, using fallback")
+    model = None
 
 def get_news(company):
     try:
